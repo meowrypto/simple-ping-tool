@@ -16,19 +16,24 @@ set "NEON=%ESC%[38;5;46m"
 set "RESET=%ESC%[0m"
 
 :: ============================================================
-::  Latency thresholds (ms) - edit these to taste
-::  < GOOD_MAX        -> GREEN
-::  GOOD_MAX..OK_MAX   -> ORANGE
-::  > OK_MAX           -> RED
+::  Test settings - edit these to taste
 :: ============================================================
+set "PING_COUNT=6"
+
+:: Average latency thresholds (ms)
 set "GOOD_MAX=70"
 set "OK_MAX=200"
 
+:: Jitter thresholds (ms) - lower is more stable
+set "JITTER_GOOD_MAX=10"
+set "JITTER_OK_MAX=30"
+
 echo %CYAN%=======================================================%RESET%
 echo   Professional DNS Latency and Quality Monitor
+echo   (now with Jitter / connection stability check)
 echo %CYAN%=======================================================%RESET%
 echo.
-echo Analyzing connection quality and measuring average latency...
+echo Analyzing connection quality, latency and jitter...
 echo Please wait...
 echo.
 
@@ -55,25 +60,78 @@ set "DNS_IP=%~2"
 echo -------------------------------------------------------
 echo Testing %YELLOW%%DNS_NAME% (%DNS_IP%)%RESET%...
 
+set "tmpfile=%TEMP%\dnscheck_%RANDOM%.txt"
+ping %DNS_IP% -n %PING_COUNT% > "%tmpfile%" 2>nul
+
 set "avg="
-for /f "tokens=4 delims==" %%a in ('ping %DNS_IP% -n 2 ^| findstr /C:"Average"') do set "avg=%%a"
+for /f "tokens=4 delims==" %%a in ('findstr /C:"Average" "%tmpfile%" 2^>nul') do set "avg=%%a"
 
 if not defined avg (
     echo STATUS: %RED%OFFLINE%RESET%
+    del "%tmpfile%" >nul 2>nul
     echo.
     exit /b
 )
 
-:: strip spaces left over from parsing, e.g. " 22ms" -^> "22ms"
 set "avg=!avg: =!"
 set "num=!avg:ms=!"
 
-if !num! LSS %GOOD_MAX% (
-    echo STATUS: %NEON%ONLINE%RESET% [Avg Latency: %GREEN%!avg!%RESET%]
-) else if !num! LEQ %OK_MAX% (
-    echo STATUS: %NEON%ONLINE%RESET% [Avg Latency: %ORANGE%!avg!%RESET%]
-) else (
-    echo STATUS: %NEON%ONLINE%RESET% [Avg Latency: %RED%!avg!%RESET%]
+:: ---- collect individual round-trip-time samples for jitter ----
+set "sampleCount=0"
+for /f "delims=" %%l in ('findstr /R "time[=^<]" "%tmpfile%"') do (
+    set "line=%%l"
+    set "val="
+    echo !line! | findstr /C:"time<1ms" >nul
+    if !errorlevel! EQU 0 (
+        set "val=0"
+    ) else (
+        set "t=!line:*time=!"
+        set "t=!t:~1!"
+        for /f "tokens=1 delims=m" %%n in ("!t!") do set "val=%%n"
+    )
+    if defined val (
+        set /a sampleCount+=1
+        set "sample[!sampleCount!]=!val!"
+    )
 )
+
+:: ---- jitter = mean absolute difference between consecutive samples ----
+set "jitterText=N/A"
+set "jitterColor=%RESET%"
+if !sampleCount! GEQ 2 (
+    set "jitterSum=0"
+    set "pairCount=0"
+    set /a lastIdx=sampleCount-1
+    for /l %%i in (1,1,!lastIdx!) do (
+        set /a nextIdx=%%i+1
+        set /a diff=sample[%%i]-sample[!nextIdx!]
+        if !diff! LSS 0 set /a diff=-diff
+        set /a jitterSum+=diff
+        set /a pairCount+=1
+    )
+    set /a jitterVal=jitterSum/pairCount
+    set "jitterText=!jitterVal!ms"
+
+    if !jitterVal! LSS %JITTER_GOOD_MAX% (
+        set "jitterColor=%GREEN%"
+    ) else if !jitterVal! LEQ %JITTER_OK_MAX% (
+        set "jitterColor=%ORANGE%"
+    ) else (
+        set "jitterColor=%RED%"
+    )
+)
+
+:: ---- latency color ----
+if !num! LSS %GOOD_MAX% (
+    set "latColor=%GREEN%"
+) else if !num! LEQ %OK_MAX% (
+    set "latColor=%ORANGE%"
+) else (
+    set "latColor=%RED%"
+)
+
+echo STATUS: %NEON%ONLINE%RESET% [Avg Latency: !latColor!!avg!%RESET%] [Jitter: !jitterColor!!jitterText!%RESET%]
+
+del "%tmpfile%" >nul 2>nul
 echo.
 exit /b
