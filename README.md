@@ -13,6 +13,12 @@ Instead of relying on a single checkpoint, this tool gives you a broader look at
   - 🟢 **Green** — average latency under 70 ms (excellent)
   - 🟠 **Orange** — average latency between 70–200 ms (acceptable)
   - 🔴 **Red** — average latency above 200 ms (poor)
+- **Jitter / Stability Check:** measures how much the round-trip time varies between
+  consecutive pings, not just the average — a connection can have a "good" average
+  latency and still feel unstable if jitter is high.
+  - 🟢 **Green** — jitter under 10 ms (very stable)
+  - 🟠 **Orange** — jitter 10–30 ms (noticeable variation)
+  - 🔴 **Red** — jitter above 30 ms (unstable)
 - **Neon "ONLINE" indicator:** the online/offline status is always shown in a distinct
   phosphor-green color, separate from the latency color, so the two never get mixed up.
 - **No Installation:** Pure Windows Batch script, zero dependencies.
@@ -33,6 +39,26 @@ Instead of relying on a single checkpoint, this tool gives you a broader look at
 2. Double-click the file to execute (or run it from `cmd.exe`).
 3. Review the terminal output: each server shows `ONLINE`/`OFFLINE` plus a color-coded
    average latency.
+
+## Changelog (v1.3.0 — Jitter support)
+
+Added the ability to measure **jitter** (connection stability), not just raw average
+latency.
+
+- Each server is now pinged 6 times per test (previously 2), giving enough samples to
+  measure variation between consecutive replies.
+- The script reuses a single `ping` run per server (output saved to a temp file) to
+  compute both the Average latency **and** the Jitter — no extra network calls needed.
+- **Jitter calculation:** the mean of the absolute differences between each pair of
+  consecutive round-trip times. This is a simplified version of the interarrival-jitter
+  concept from RFC 3550 — smaller values mean a more stable, consistent connection;
+  large jitter means the delay is swinging up and down even if the average looks fine.
+- Jitter gets its own color coding, independent of the latency color:
+  - 🟢 Green — jitter under 10 ms (very stable)
+  - 🟠 Orange — jitter 10–30 ms (noticeable variation)
+  - 🔴 Red — jitter above 30 ms (unstable connection)
+- Thresholds are configurable via the `JITTER_GOOD_MAX` / `JITTER_OK_MAX` variables at
+  the top of the script, same pattern as the existing latency thresholds.
 
 ## Changelog (v1.2.0 — bug-fix release)
 
