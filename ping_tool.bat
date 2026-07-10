@@ -37,11 +37,16 @@ echo Analyzing connection quality, latency and jitter...
 echo Please wait...
 echo.
 
-call :TestDNS "Google DNS"     "8.8.8.8"
-call :TestDNS "Cloudflare DNS" "1.1.1.1"
-call :TestDNS "Quad9 DNS"      "9.9.9.9"
-call :TestDNS "Cisco OpenDNS"  "208.67.222.222"
-call :TestDNS "AdGuard DNS"    "94.140.14.14"
+call :TestDNS "Google DNS"        "8.8.8.8"
+call :TestDNS "Cloudflare DNS"    "1.1.1.1"
+call :TestDNS "Quad9 DNS"         "9.9.9.9"
+call :TestDNS "Cisco OpenDNS"     "208.67.222.222"
+call :TestDNS "AdGuard DNS"       "94.140.14.14"
+call :TestDNS "Yandex.DNS"        "77.88.8.8"
+call :TestDNS "DNS.WATCH"         "84.200.69.80"
+call :TestDNS "CleanBrowsing"     "185.228.168.9"
+call :TestDNS "Comodo Secure DNS" "8.26.56.26"
+call :TestDNS "Alternate DNS"     "76.76.19.19"
 
 echo %CYAN%=======================================================%RESET%
 echo  Test Completed. Color indicators show connection health.
