@@ -32,6 +32,11 @@ Instead of relying on a single checkpoint, this tool gives you a broader look at
 | Quad9 DNS | `9.9.9.9` |
 | Cisco OpenDNS | `208.67.222.222` |
 | AdGuard DNS | `94.140.14.14` |
+| Yandex.DNS (Basic) | `77.88.8.8` |
+| DNS.WATCH | `84.200.69.80` |
+| CleanBrowsing (Security) | `185.228.168.9` |
+| Comodo Secure DNS | `8.26.56.26` |
+| Alternate DNS | `76.76.19.19` |
 
 ## How to Use
 
@@ -39,6 +44,18 @@ Instead of relying on a single checkpoint, this tool gives you a broader look at
 2. Double-click the file to execute (or run it from `cmd.exe`).
 3. Review the terminal output: each server shows `ONLINE`/`OFFLINE` plus a color-coded
    average latency.
+
+## Changelog (v1.4.0 — more DNS servers)
+
+Added 5 more well-known public DNS resolvers, bringing the total to 10:
+`Yandex.DNS`, `DNS.WATCH`, `CleanBrowsing` (Security filter), `Comodo Secure DNS`,
+and `Alternate DNS`. Each is added the same way as the original five — one line
+calling the `:TestDNS` subroutine — so extending the list further later is a
+one-line change.
+
+Note: Verisign Public DNS was intentionally left out — the free service was
+discontinued in 2025 and its old IPs (`64.6.64.6` / `64.6.65.6`) no longer resolve
+reliably.
 
 ## Changelog (v1.3.0 — Jitter support)
 
