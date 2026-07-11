@@ -3,6 +3,7 @@ setlocal EnableDelayedExpansion
 title Professional DNS Latency and Quality Monitor
 cls
 
+
 :: ============================================================
 ::  ANSI color code setup
 :: ============================================================
