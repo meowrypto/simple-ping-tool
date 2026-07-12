@@ -3,7 +3,6 @@ setlocal EnableDelayedExpansion
 title Professional DNS Latency and Quality Monitor
 cls
 
-
 :: ============================================================
 ::  ANSI color code setup
 :: ============================================================
@@ -52,6 +51,9 @@ call :TestDNS "Alternate DNS"     "76.76.19.19"
 echo %CYAN%=======================================================%RESET%
 echo  Test Completed. Color indicators show connection health.
 echo %CYAN%=======================================================%RESET%
+echo.
+echo   %NEON%Fixed and maintained by Farzad Doosti%RESET%
+echo.
 pause
 exit /b
 
