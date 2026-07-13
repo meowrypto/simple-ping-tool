@@ -1,7 +1,7 @@
 @echo off
 setlocal EnableDelayedExpansion
 title Professional DNS Latency and Quality Monitor
-cls
+cls 
 
 :: ============================================================
 ::  ANSI color code setup
