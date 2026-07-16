@@ -220,7 +220,6 @@ error-prone for future edits.
   `cmd.exe`, or open an issue with your locale's exact `ping` output so matching can be
   added.
 
-
 ## License
 
 This project is open-source and available under the [MIT License](LICENSE).
